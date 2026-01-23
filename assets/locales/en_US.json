@@ -851,5 +851,7 @@
     "鸣潮 ok-ww": "Wuthering Waves ok-ww",
     "MFAAvalonia": "MFAAvalonia",
     "更新成功": "Update Successful",
-    "配置在重启软件后生效": "Settings take effect after restart"
+    "配置在重启软件后生效": "Settings take effect after restart",
+    "DisclaimerTitle": "Disclaimer",
+    "DisclaimerContent": "\n- This program is a free open-source project. If you paid for it, please request a refund immediately!!!\n\n- This project is under serious threat due to reselling. Please help us!!!\n\n- Every penny paid to resellers makes open-source automation harder. Please refund and report the seller!!!\n\n<h1 style=\"color:#f18cb9\">NOTICE: This software is NOT authorized for sale by anyone in any way.</h1>\n\n<h1 style=\"color:#f18cb9\">If you bought this, use this popup as proof to request a refund.</h1>\n\nThis software is open-source and free, intended for learning and communication only. The developer team reserves the final right of interpretation.\n\nAny issues arising from the use of this software are unrelated to the project and the developer team.\n\nPlease note MiHoYo's [Honkai: Star Rail Fair Play Declaration](https://sr.mihoyo.com/news/111246?nav=news&type=notice):\n\n    \"Strictly prohibits the use of plug-ins, accelerators, scripts, or other third-party tools that damage game fairness.\"\n    \"Once discovered, MiHoYo (hereinafter referred to as 'we') will take measures such as deducting illegal gains, freezing game accounts, and permanently banning game accounts depending on the severity and frequency of the violation.\"\n"
 }
