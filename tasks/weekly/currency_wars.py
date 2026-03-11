@@ -976,7 +976,12 @@ class CurrencyWars:
         first_norm = to_norm(*path_pixels[0])
         first_crop = make_crop_box(first_norm)
         pos_start = auto.find_element(first_crop, "crop")
-        auto.click_element_with_pos(pos_start, action="down")
+
+        # 避免装备过多时，收集奖励失败
+        pos = (6.0 / 1920, 5.0 / 1080, 12.0 / 1920, 14.0 / 1080)
+        auto.click_element_with_pos(auto.find_element(pos, "crop"), action="down")
+
+        auto.click_element_with_pos(pos_start, action="move")
 
         # 连续移动
         for px, py in path_pixels[1:]:
@@ -1278,7 +1283,8 @@ class CurrencyWars:
             # 人力重组：移除场上和备战席的所有角色
             # 节省工位：在接下来3个节点只有3个备战席位置
             # 奋斗协议：购买经验值消耗7点小队生命值而非金币
-            black_list = ('深井角斗场', '佩佩客串', '钻石商人', '现金为王', '降本增效', '大裁员', '人力重组', '节省工位', '奋斗协议')
+            # 专家研讨会：获得1个【专家邀请函】和1个【简易武装箱】。
+            black_list = ('深井角斗场', '佩佩客串', '钻石商人', '现金为王', '降本增效', '大裁员', '人力重组', '节省工位', '奋斗协议', '专家研讨会')
             for pos in button_positions:
                 if auto.find_element(black_list, 'text', crop=pos, include=True):
                     log.debug(f"跳过{auto.matched_text}选项")
@@ -1342,8 +1348,8 @@ class CurrencyWars:
                 (1007.0 / 1920, 347.0 / 1080, 130.0 / 1920, 246.0 / 1080),
                 (1362.0 / 1920, 346.0 / 1080, 130.0 / 1920, 247.0 / 1080),
             ]
-            auto.click_element(button_positions_click[0], 'crop', None, 10)
-            log.info("默认选择第一个补给选项")
+            auto.click_element(button_positions_click[2], 'crop', None, 10)
+            log.info("默认选择中间补给选项")
             time.sleep(1)
             auto.click_element('确认', 'text', None, 10, crop=(1490.0 / 1920, 943.0 / 1080, 403.0 / 1920, 76.0 / 1080), include=True)
 

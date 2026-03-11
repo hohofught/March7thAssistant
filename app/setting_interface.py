@@ -12,7 +12,7 @@ from .card.switchsettingcard1 import SwitchSettingCard1, SwitchSettingCardNotify
 from .card.rangesettingcard1 import RangeSettingCard1
 from .card.pushsettingcard1 import PushSettingCardInstance, PushSettingCardInstanceChallengeCount, PushSettingCardNotifyTemplate, PushSettingCardMirrorchyan, PushSettingCardEval, PushSettingCardDate, PushSettingCardKey, PushSettingCardTeam, PushSettingCardFriends, PushSettingCardTeamWithSwap, PushSettingCardPowerPlan
 from .card.timepickersettingcard1 import TimePickerSettingCard1
-from .card.expandable_switch_setting_card import ExpandableSwitchSettingCard, ExpandableComboBoxSettingCardUpdateSource, ExpandablePushSettingCard, ExpandableComboBoxSettingCard, ExpandableComboBoxSettingCard1, ExpandableSwitchSettingCardEchoofwar
+from .card.expandable_switch_setting_card import ExpandableSwitchSettingCard, ExpandableComboBoxSettingCardUpdateSource, ExpandablePushSettingCard, ExpandableComboBoxSettingCard, ExpandableComboBoxSettingCardInstanceType, ExpandableSwitchSettingCardEchoofwar
 from module.config import cfg
 from module.notification import notif
 from module.localization import tr
@@ -92,7 +92,7 @@ class SettingInterface(ScrollArea):
             tr("体力计划"),
             "power_plan"
         )
-        self.instanceTypeCard = ExpandableComboBoxSettingCard1(
+        self.instanceTypeCard = ExpandableComboBoxSettingCardInstanceType(
             "instance_type",
             FIF.ALIGNMENT,
             tr("副本类型"),
@@ -364,9 +364,9 @@ class SettingInterface(ScrollArea):
         )
 
         self.assetEnableCard = ExpandableSwitchSettingCard(
-            "asset_manager_enable", 
-            FIF.LIBRARY, 
-            tr("启用资产管理"), 
+            "asset_manager_enable",
+            FIF.LIBRARY,
+            tr("启用资产管理"),
             ""
         )
 
@@ -451,11 +451,11 @@ class SettingInterface(ScrollArea):
             '',
             texts={tr('常规演算'): 'normal', tr('周期演算'): 'cycle'}
         )
-        self.universeDisableGpuCard = SwitchSettingCard1(
+        self.universeEnableGpuCard = SwitchSettingCard1(
             FIF.COMMAND_PROMPT,
-            tr('禁用GPU加速'),
-            tr('差分宇宙无法正常运行时，可尝试打开此选项'),
-            "universe_disable_gpu"
+            tr('启用差分宇宙 GPU 加速'),
+            tr('开启后可能提升运行速度，若出现错误、异常或不稳定，请关闭此选项'),
+            "universe_enable_gpu"
         )
         self.universeTimeoutCard = RangeSettingCard1(
             "universe_timeout",
@@ -819,7 +819,8 @@ class SettingInterface(ScrollArea):
             FIF.POWER_BUTTON,
             tr('任务完成后'),
             tr('“退出”指退出游戏，不再建议使用循环模式，请改用日志界面的定时运行功能'),
-            texts={tr('无'): 'None', tr('退出'): 'Exit', tr('关机'): 'Shutdown', tr('睡眠'): 'Sleep', tr('休眠'): 'Hibernate', tr('重启'): 'Restart', tr('注销'): 'Logoff', tr('关闭显示器'): 'TurnOffDisplay', tr('运行脚本'): 'RunScript', tr('循环'): 'Loop'}
+            texts={tr('无'): 'None', tr('退出'): 'Exit', tr('关机'): 'Shutdown', tr('睡眠'): 'Sleep', tr('休眠'): 'Hibernate', tr('重启')
+                      : 'Restart', tr('注销'): 'Logoff', tr('关闭显示器'): 'TurnOffDisplay', tr('运行脚本'): 'RunScript', tr('循环'): 'Loop'}
         )
         self.loopModeCard = ComboBoxSettingCard2(
             "loop_mode",
@@ -922,10 +923,10 @@ class SettingInterface(ScrollArea):
                     display_name = "ServerChan3"
                 else:
                     display_name = notifier_name.capitalize()
-                
+
                 support_image = tr("（支持图片）") if notifier_name in self.notifySupportImage else ""
                 title_text = tr('启用 {} 通知').format(display_name) + support_image
-                
+
                 notifyEnableCard = SwitchSettingCardNotify(
                     self.notifyLogoDict[notifier_name] if notifier_name in self.notifyLogoDict else FIF.MAIL,
                     title_text,
@@ -1056,7 +1057,6 @@ class SettingInterface(ScrollArea):
         # self.PowerGroup.addSettingCard(self.calyxGoldenPreferenceCard)
         self.PowerGroup.addSettingCard(self.instanceTypeCard)
         self.instanceTypeCard.addSettingCards([
-            self.instanceNameCard,
             self.instanceTeamEnableCard,
             self.tpBeforeInstanceEnableCard,
             self.useReservedTrailblazePowerEnableCard,
@@ -1065,6 +1065,7 @@ class SettingInterface(ScrollArea):
             self.mergeImmersifierEnableCard,
             self.instanceNameChallengeCountCard
         ])
+        self.PowerGroup.addSettingCard(self.instanceNameCard)
         self.PowerGroup.addSettingCard(self.borrowEnableCard)
         # 将子卡片添加到 borrowEnableCard 的可展开区域
         self.borrowEnableCard.addSettingCards([
@@ -1144,7 +1145,7 @@ class SettingInterface(ScrollArea):
         ])
         self.UniverseGroup.addSettingCard(self.divergentTeamTypeCard)
         self.UniverseGroup.addSettingCard(self.universeBonusEnableCard)
-        self.UniverseGroup.addSettingCard(self.universeDisableGpuCard)
+        self.UniverseGroup.addSettingCard(self.universeEnableGpuCard)
 
         self.FightGroup.addSettingCard(self.fightEnableCard)
         self.fightEnableCard.addSettingCards([
@@ -1366,14 +1367,24 @@ class SettingInterface(ScrollArea):
     #         self.__showRestartTooltip()
 
     def __onGamePathCardClicked(self):
-        game_path, _ = QFileDialog.getOpenFileName(self, tr("选择游戏路径"), "", tr("所有文件 (*)") + ";;All Files (*)")
+        game_path, _ = QFileDialog.getOpenFileName(
+            self,
+            tr("选择游戏路径"),
+            "",
+            tr("脚本或可执行文件 (*.exe *.bat *.cmd *.ps1)")
+        )
         if not game_path or cfg.game_path == game_path:
             return
         cfg.set_value("game_path", game_path)
         self.gamePathCard.setContent(game_path)
 
     def __onLauncherPathCardClicked(self):
-        launcher_path, _ = QFileDialog.getOpenFileName(self, tr("选择米哈游启动器路径"), "", tr("所有文件 (*)") + ";;All Files (*)")
+        launcher_path, _ = QFileDialog.getOpenFileName(
+            self,
+            tr("选择米哈游启动器路径"),
+            "",
+            tr("脚本或可执行文件 (*.exe *.bat *.cmd *.ps1)")
+        )
         if not launcher_path or cfg.launcher_path == launcher_path:
             return
         cfg.set_value("launcher_path", launcher_path)
@@ -1393,7 +1404,12 @@ class SettingInterface(ScrollArea):
     #         parent=self
     #     )
     def __onScriptPathCardClicked(self):
-        script_path, _ = QFileDialog.getOpenFileName(self, tr("脚本或程序路径"), "", tr("脚本或可执行文件 (*.ps1 *.bat *.exe)"))
+        script_path, _ = QFileDialog.getOpenFileName(
+            self,
+            tr("脚本或程序路径"),
+            "",
+            tr("脚本或可执行文件 (*.exe *.bat *.cmd *.ps1)")
+        )
         if not script_path or cfg.script_path == script_path:
             return
         cfg.set_value("script_path", script_path)

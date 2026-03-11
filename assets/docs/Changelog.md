@@ -1,5 +1,42 @@
 # 更新日志
 
+## v2026.3.7
+- 支持爻光、火花、阮梅时装 [#905](https://github.com/moesnow/March7thAssistant/pull/905) @0frostmourne0
+- 更新差分宇宙配置选项现在默认禁用 GPU 加速
+- 修复特定条件下会重复触发同一定时任务
+- 修复设置游戏路径后侧边栏启动游戏按钮不会实时生效
+- 修复逐光捡金选择角色时命途切换窗口阻碍后续流程 [#907](https://github.com/moesnow/March7thAssistant/pull/907) @g60cBQ
+- 优化性能和稳定性并修复若干已知问题
+
+## v2026.2.28
+- 适配 4.0 版本货币战争新增投资环境
+- 适配支援界面支持替换队伍中已有角色 [#900](https://github.com/moesnow/March7thAssistant/pull/900) @g60cBQ
+- 优化性能和稳定性并修复若干已知问题
+
+## v2026.2.21
+- 支持 4.0 版本新增关卡
+- 适配 4.0 版本支援新界面 [#882](https://github.com/moesnow/March7thAssistant/pull/882) @g60cBQ
+- 适配 4.0 版本委托奖励新界面
+- 适配 4.0 版本饰品提取编队新界面 [#896](https://github.com/moesnow/March7thAssistant/pull/896) @g60cBQ
+- 添加新版本本地化翻译 [#883](https://github.com/moesnow/March7thAssistant/pull/883) @g60cBQ
+- 补充一些遗漏的本地化翻译 [#868](https://github.com/moesnow/March7thAssistant/pull/868) @loader3229
+- 云游戏二维码登录支持消息推送 [#893](https://github.com/moesnow/March7thAssistant/pull/893) @architect9331
+- 修复获取抽卡记录时请求出错
+- 修复货币战争补给阶段选择异常
+- 修复培养目标无法正确识别拟造花萼金 [#888](https://github.com/moesnow/March7thAssistant/pull/888) @g60cBQ
+- 修复非简体中文语言修改副本类型后导致清体力出错 [#881](https://github.com/moesnow/March7thAssistant/pull/881)
+- 修复 macOS 通过 docker 运行时 OCR 识别异常 [#891](https://github.com/moesnow/March7thAssistant/issues/891)
+- 修复系统睡眠或休眠后循环模式未按时执行的问题
+- 优化性能和稳定性并修复若干已知问题
+
+## v2026.2.9
+- 支持中文格式的兑换码
+- 图形界面支持多语言 [#856](https://github.com/moesnow/March7thAssistant/pull/856) @hohofught
+- 新增支持三星光锥自动合成 [#854](https://github.com/moesnow/March7thAssistant/pull/854) @vintcessun
+- 修复偶现获取培养目标副本出错 [#857](https://github.com/moesnow/March7thAssistant/pull/857) @g60cBQ
+- 修正一些本地化翻译错误 @loader3229 @g60cBQ @hohofught
+- 优化性能和稳定性并修复若干已知问题
+
 ## v2026.1.21
 - 支持货币战争领取积分奖励后自动使用深度沉浸器
 - 新增 MeoW 推送支持 [#850](https://github.com/moesnow/March7thAssistant/pull/850) @pboymt
