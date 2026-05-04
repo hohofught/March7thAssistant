@@ -9,18 +9,19 @@ from packaging.version import parse
 from tqdm import tqdm
 import requests
 import psutil
-import urllib.request
 from urllib.request import urlopen
 from urllib.error import URLError
 from utils.color import red, green
 from utils.logger.logger import Logger
+from module.update.download_proxy import get_update_download_aria2_args, get_update_download_requests_proxies
 
 
 class Updater:
     """应用程序更新器，负责检查、下载、解压和安装最新版本的应用程序。"""
 
-    def __init__(self, logger: Logger, download_url=None, file_name=None):
+    def __init__(self, logger: Logger, download_url=None, file_name=None, auto_mode=False):
         self.logger = logger
+        self.auto_mode = auto_mode
         self.process_names = ["March7th Assistant.exe", "March7th Launcher.exe", "flet.exe", "gui.exe", "Fhoe-Rail.exe", "chromedriver.exe", "PaddleOCR-json.exe"]
         self.api_urls = [
             "https://api.github.com/repos/moesnow/March7thAssistant/releases/latest",
@@ -37,9 +38,14 @@ class Updater:
         self.logger.hr("获取下载链接", 0)
         if download_url is None:
             self.download_url = self.get_download_url()
+            if self.auto_mode and not self.download_url:
+                self.logger.info("当前已是最新版本，自动退出更新流程")
+                self.logger.hr("完成", 2)
+                sys.exit(0)
             self.logger.info(f"下载链接: {green(self.download_url)}")
             self.logger.hr("完成", 2)
-            input("按回车键开始更新")
+            if not self.auto_mode:
+                input("按回车键开始更新")
         else:
             self.logger.info(f"下载链接: {green(self.download_url)}")
             self.logger.hr("完成", 2)
@@ -73,7 +79,9 @@ class Updater:
         if download_url is None:
             raise Exception("没有找到合适的下载URL")
 
-        self.compare_versions(version)
+        has_update = self.compare_versions(version)
+        if self.auto_mode and not has_update:
+            return None
         return download_url
 
     def compare_versions(self, version):
@@ -83,13 +91,16 @@ class Updater:
                 current_version = file.read().strip()
             if parse(version.lstrip('v')) > parse(current_version.lstrip('v')):
                 self.logger.info(f"发现新版本: {current_version} ——> {version}")
+                return True
             else:
                 self.logger.info(f"本地版本: {current_version}")
                 self.logger.info(f"远程版本: {version}")
                 self.logger.info(f"当前已是最新版本")
+                return False
         except Exception as e:
             self.logger.info(f"本地版本获取失败: {e}")
             self.logger.info(f"最新版本: {version}")
+            return True
 
     def find_fastest_mirror(self, mirror_urls, timeout=5):
         """测速并找到最快的镜像。"""
@@ -113,16 +124,17 @@ class Updater:
     def download_with_progress(self):
         """下载文件并显示进度条。"""
         self.logger.hr("下载", 0)
-        proxies = urllib.request.getproxies()
+        request_proxies = get_update_download_requests_proxies()
+        aria2_proxy_args = get_update_download_aria2_args()
         while True:
             try:
                 self.logger.info("开始下载...")
                 try:
-                    self.download_with_requests()
+                    self.download_with_requests(request_proxies)
                 except Exception as e:
                     if os.path.exists(self.aria2_path):
                         self.logger.warning(f"下载失败: {red(e)}，尝试使用外部下载工具")
-                        self.download_with_aria2(proxies)
+                        self.download_with_aria2(aria2_proxy_args)
                     else:
                         self.logger.error(red(e))
                         raise e
@@ -135,7 +147,7 @@ class Updater:
                 input("按回车键重试. . .")
         self.logger.hr("完成", 2)
 
-    def download_with_aria2(self, proxies):
+    def download_with_aria2(self, proxy_args):
         # 偶现报错
         # [SocketCore.cc:1019] errorCode=1 SSL/TLS handshake failure: Error: 由于吊销服务器已脱机，吊销功能无法检查吊销。 (80092013)
 
@@ -144,7 +156,6 @@ class Updater:
             "--disable-ipv6=true",
             "--dir={}".format(os.path.dirname(self.download_file_path)),
             "--out={}".format(os.path.basename(self.download_file_path)),
-            self.download_url
         ]
 
         if "github.com" in self.download_url:
@@ -152,13 +163,11 @@ class Updater:
             # 仅在下载 GitHub 资源时启用断点续传，避免416错误
             if os.path.exists(self.download_file_path):
                 command.insert(2, "--continue=true")
-        # 代理设置
-        for scheme, proxy in proxies.items():
-            if scheme in ("http", "https", "ftp"):
-                command.append(f"--{scheme}-proxy={proxy}")
+        command.extend(proxy_args)
+        command.append(self.download_url)
         subprocess.run(command, check=True)
 
-    def download_with_requests(self, max_retries=5, retry_delay=2):
+    def download_with_requests(self, request_proxies=None, max_retries=5, retry_delay=2):
         attempt = 0
         while attempt < max_retries:
             existing_size = os.path.getsize(self.download_file_path) if os.path.exists(self.download_file_path) else 0
@@ -169,7 +178,7 @@ class Updater:
                 if existing_size > 0:
                     headers["Range"] = f"bytes={existing_size}-"
 
-                with requests.get(self.download_url, stream=True, headers=headers, timeout=(10, 30)) as r:
+                with requests.get(self.download_url, stream=True, headers=headers, timeout=(10, 30), proxies=request_proxies) as r:
                     # 支持断点续传时会返回 206，不支持时通常返回 200（需要重下）
                     if existing_size > 0 and r.status_code == 206:
                         mode = "ab"
@@ -388,6 +397,7 @@ class Updater:
         """覆盖安装最新版本的文件。"""
         self.logger.hr("覆盖", 0)
         while True:
+            self.logger.info("检查是否有文件被占用...")
             files_to_overwrite = self.get_files_to_overwrite()
             locked = self.check_target_files_locked(files_to_overwrite)
             if locked:
@@ -399,6 +409,8 @@ class Updater:
                     self.logger.info(red(f"...另外 {remaining} 个文件被占用（未显示）"))
                 input("请手动关闭相关进程后按回车重新检测...")
                 continue
+            else:
+                self.logger.info("没有文件被占用，准备覆盖...")
 
             try:
                 self.logger.info("开始覆盖...")
@@ -571,10 +583,16 @@ def check_temp_dir_and_run():
     #     subprocess.Popen(args, creationflags=subprocess.DETACHED_PROCESS)
     #     sys.exit(0)
 
-    download_url = sys.argv[1] if len(sys.argv) == 3 else None
-    file_name = sys.argv[2] if len(sys.argv) == 3 else None
+    args = sys.argv[1:]
+    auto_mode = False
+    if args and args[0] in ("--auto", "-a", "/auto"):
+        auto_mode = True
+        args = args[1:]
+
+    download_url = args[0] if len(args) == 2 else None
+    file_name = args[1] if len(args) == 2 else None
     logger = Logger()
-    updater = Updater(logger, download_url, file_name)
+    updater = Updater(logger, download_url, file_name, auto_mode=auto_mode)
     updater.run()
 
 
