@@ -1,17 +1,28 @@
 # 更新日志
 
-## v2026.5.4
+## v2026.5.12
+- 货币战争新增 “希儿” 策略（测试版）
+- 新增每月自动合成自塑尘脂、兑换专票通票等超值商品
+- 支持主动完成每日实训任务派遣委托
+- 支持遐蝶皮肤「幽梦翩跹」 [#1048](https://github.com/moesnow/March7thAssistant/issues/1048) @shing-yu
+- 帮助页面样式优化 [#1044](https://github.com/moesnow/March7thAssistant/issues/1044) @Because66666
+- 修复历战余响提前解锁提示框影响识别 [#1047](https://github.com/moesnow/March7thAssistant/issues/1047) @shing-yu
+- Linux/macOS 浏览器关闭逻辑优化 [#1033](https://github.com/moesnow/March7thAssistant/issues/1033) @shing-yu @stelahaveno
+- 优化性能和稳定性并修复若干已知问题
+- [欢迎关注我们的B站账号，获取最新动态和教程](https://space.bilibili.com/3706960664857075)
+
+## v2026.5.6
 - 新增 “日常” 任务（合并每日实训和体力）以及 “清体力” 总开关
 - 新增 “定时任务” 支持链式启动
 - 新增 “流程编排” 支持添加终止流程步骤
 - 新增 “调试模式” 功能，支持在 Windows 上实时绘制检测范围框
 - 新增支持修改开/关 “自动战斗” 的按键
 - 优化了自动对话功能
+- 优化了帮助页面支持复制和自动换行 [#1035](https://github.com/moesnow/March7thAssistant/issues/1035) @Because66666
 - 差分宇宙现在会记录今日和每周的运行次数
-- 修复了 “流程编排” 按下操作会自动松开
+- 修复了 “流程编排” 按下操作会自动松开以及不支持中文路径模板图片
 - 修复游戏已启动时不会检查分辨率是否正确
 - 优化性能和稳定性并修复若干已知问题
-- [欢迎关注我们的B站账号，获取最新动态和教程](https://space.bilibili.com/3706960664857075)
 
 ## v2026.5.1
 - 新增 “流程编排” 功能，支持创建简单的自动化流程
